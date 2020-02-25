@@ -1,8 +1,9 @@
 ﻿using System;
 
-public struct StateTransition<V> where V: Enum
+[System.Serializable]
+public struct StateTransition
 {
-	public V from;
-	public V to;
+	public string from;
+	public string to;
 	public string transitionPredicateFunction;
 }

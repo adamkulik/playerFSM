@@ -1,31 +1,24 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerStateMachine 
+public class PlayerStateMachine : StateMachine<PlayerController, PlayerStateValue>
 {
-   public PlayerStateValue currentStateValue { get; private set; }
-    private PlayerState currentState;
-    private PlayerStateBuilder builder;
-
-    public PlayerStateMachine()
+    public bool toWalk(PlayerController player)
     {
-        builder = new PlayerStateBuilder();
-        currentState = builder.getState(PlayerStateValue.WALK);
-        currentStateValue = PlayerStateValue.WALK;
+        return (!player.isGrounded() || !player.isJumpPressed) && !player.isShootPressed;
     }
-    public void UpdateState(PlayerController controller)
+    public bool toJump(PlayerController player)
     {
-        PlayerStateValue newStateValue = currentState.checkTransitions(controller);
-        if(newStateValue != PlayerStateValue.NOT_VALID)
-        {
-            currentStateValue = newStateValue;
-            currentState = builder.getState(newStateValue);
-        }
-
-
+        return player.isGrounded() && player.isJumpPressed;
     }
-    
-
-
+    public bool toAim(PlayerController player)
+    {
+        return player.isGrounded() && player.isShootPressed;
+    }
+    public bool toShoot(PlayerController player)
+    {
+        return !player.isShootPressed;
+    }
 }

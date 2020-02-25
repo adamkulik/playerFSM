@@ -3,36 +3,40 @@ using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
-public abstract class StateMachine<S, V>: MonoBehaviour where V: Enum
+/**
+ * S - state class
+ * V - value enum
+ */
+public abstract class StateMachine<S, V> : MonoBehaviour where S : MonoBehaviour where V : Enum
 {
-	Dictionary<V, State<S, V>> states = new Dictionary<V, State<S, V>>();
-    public V CurrentState { get; }
+    Dictionary<V, State<S, V>> states = new Dictionary<V, State<S, V>>();
+    public V currentState;
 
-    public StateTransition<V>[] transitions;
+    public StateTransition[] transitions;
     public V initialState;
 
-	void Start()
+    protected virtual void Start()
     {
-        CurrentState = initialState;
+        currentState = initialState;
 
-		foreach(V value in Enum.GetValues(typeof(V)))
+        foreach (V value in Enum.GetValues(typeof(V)))
         {
             states.Add(value, new State<S, V>());
         }
 
-        foreach(StateTransition<V> transition in transitions)
+        foreach (StateTransition transition in transitions)
         {
-            states[transition.from].AddTransition(transition.to,
-                this.GetType().GetRuntimeMethod(transition.transitionPredicateFunction, new[] { typeof(S) }).CreateDelegate(typeof(Func<S, bool>), this));
+            states[(V)Enum.Parse(typeof(V), transition.from)].AddTransition((V)Enum.Parse(typeof(V), transition.to),
+                x => (bool)this.GetType().GetRuntimeMethod(transition.transitionPredicateFunction, new[] { typeof(S) }).Invoke(this, new[] { x }));
         }
     }
 
-    void Update()
+    protected virtual void Update()
     {
-        V nextState = states[CurrentState].CheckTransitions(gameObject);
-        if (nextState != null)
+        V nextState = states[currentState].CheckTransitions(gameObject.GetComponent<S>());
+        if (!nextState.Equals(default(V)))
         {
-            CurrentState = nextState;
+            currentState = nextState;
         }
     }
 }

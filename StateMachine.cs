@@ -7,7 +7,7 @@ using UnityEngine;
  * S - state class
  * V - value enum
  */
-public abstract class StateMachine<S, V> : MonoBehaviour where S : MonoBehaviour where V : Enum
+public abstract class StateMachine<S, V> : MonoBehaviour where S : MonoBehaviour where V : struct, Enum
 {
     Dictionary<V, State<S, V>> states = new Dictionary<V, State<S, V>>();
     public V currentState;
@@ -33,10 +33,10 @@ public abstract class StateMachine<S, V> : MonoBehaviour where S : MonoBehaviour
 
     protected virtual void Update()
     {
-        V nextState = states[currentState].CheckTransitions(gameObject.GetComponent<S>());
-        if (!nextState.Equals(default(V)))
+        V? nextState = states[currentState].CheckTransitions(gameObject.GetComponent<S>());
+        if (nextState.HasValue)
         {
-            currentState = nextState;
+            currentState = nextState.Value;
         }
     }
 }

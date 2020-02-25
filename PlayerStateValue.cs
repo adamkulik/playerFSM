@@ -1,9 +1,5 @@
-﻿/**
- * First value will always be used as invalid one, marking no change
- */
-public enum PlayerStateValue
+﻿public enum PlayerStateValue
 {
-    NOT_VALID,
     AIM,
     SHOOT,
     WALK,
